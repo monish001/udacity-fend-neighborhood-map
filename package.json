@@ -1,0 +1,22 @@
+{
+  "name": "udacity-fend-neighborhood-map",
+  "version": "0.1.0",
+  "description": "Neighborhood maps project as per udacity fend nanodegree requirements.",
+  "main": "-",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/monish001/udacity-fend-neighborhood-map.git"
+  },
+  "author": "Monish Gupta",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/monish001/udacity-fend-neighborhood-map/issues"
+  },
+  "homepage": "https://github.com/monish001/udacity-fend-neighborhood-map#readme",
+  "dependencies": {
+    "knockout": "^3.4.2"
+  }
+}
