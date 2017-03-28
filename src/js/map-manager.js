@@ -3,6 +3,7 @@
     var ZOOM = 13;
     var INITIAL_POSITION = {lat: 40.7413549, lng: -73.9980244};
     var MapManager = function(){
+        // currentPosition in format {lat: 40.7413549, lng: -73.9980244}
         this.currentPosition = INITIAL_POSITION;
         this.zoom = ZOOM;
         this.map;
@@ -10,14 +11,16 @@
     };
     MapManager.prototype.getCurrentPosition = function(){
         return this.currentPosition;
-    }
+    };
+
+    // param pos of format {latitude: 123, longitude: 1234}
     MapManager.prototype.setCurrentPosition = function(pos){
-        this.currentPosition = pos;
-        this.map.setCenter({lat: pos.latitude, lng: pos.longitude});
-    }
+        this.currentPosition = {lat: pos.latitude, lng: pos.longitude};
+        this.map.setCenter(this.currentPosition);
+    };
     MapManager.prototype.getZoom = function(){
         return this.zoom;
-    }
+    };
     MapManager.prototype.init = function(){
         this.map = new globals.google.maps.Map(document.getElementsByClassName('map-section')[0], {
             center: this.getCurrentPosition(),
