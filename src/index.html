@@ -3,11 +3,12 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title></title>
+        <title data-bind="text: title"></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="apple-touch-icon" href="@todo.png">
+        <link rel="stylesheet" type="text/css" href="css/app.css"/>
         <!-- @todo Place favicon.ico in the root directory -->
     </head>
     <body>
@@ -16,19 +17,21 @@
         <![endif]-->
 
         <!-- Application content here -->
-        <main class="app">
-            <aside class="side-bar">
-                <div class="side-bar--search-input">< text box filter ></div>
-                <div class="side-bar--search-results">< list of search results ></div>
-            </aside>
-            <header class="header">< Neighborhood map search tool ></header>
-            <section class="map-section">< Map section ></section>
-        </main>
+        <aside class="side-bar">
+            <div class="side-bar--search-input">< text box filter ></div>
+            <div class="side-bar--search-results">< list of search results ></div>
+        </aside>
+        <header class="header">< Neighborhood map search tool ></header>
+        <section class="map-section">< Map section ></section>
         <footer>copyright</footer>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script>window.ko || document.write('<script src="../node_modules/knockout/build/output/knockout-latest.debug.js"><\/script>')</script>
-        <script src="./js/app.js"></script>
+        <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVEZN7SLkts6zdk2qiSzmforFdiU6JVK0&v=3&callback=initMap">
+        </script>
+        <script src="./js/app-manager.js"></script>
+        <script src="./js/app-map.js"></script>
 
         <!-- Google Analytics @todo -->
         <!--<script>
