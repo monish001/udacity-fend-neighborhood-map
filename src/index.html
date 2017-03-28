@@ -15,20 +15,21 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
         <![endif]-->
 
-
         <!-- Application content here -->
-        <header>Neighborhood map search tool</header>
         <main class="app">
-            <aside class="app--side-bar">
-                <div class="app--filter">< text box filter ></div>
-                <div class="app--filter-list">< list of search results ></div>
+            <aside class="side-bar">
+                <div class="side-bar--search-input">< text box filter ></div>
+                <div class="side-bar--search-results">< list of search results ></div>
             </aside>
-            <section class="app--map">< map ></section>
+            <header class="header">< Neighborhood map search tool ></header>
+            <section class="map-section">< Map section ></section>
         </main>
         <footer>copyright</footer>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script>window.ko || document.write('<script src="../node_modules/knockout/build/output/knockout-latest.debug.js"><\/script>')</script>
+        <script src="./js/app.js"></script>
+
         <!-- Google Analytics @todo -->
         <!--<script>
             window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
@@ -37,4 +38,3 @@
         <script src="https://www.google-analytics.com/analytics.js" async defer></script>-->
     </body>
 </html>
-
