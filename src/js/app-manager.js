@@ -1,23 +1,15 @@
 (function(ko, document, globals){
     'use strict';
 
-    // Singleton Utility that contains helper functions
-    var Utility = {
-        getCurrentLocation: function getCurrentLocation(){
-            return '<current location>';
-        }
-    };
-
     /**
-     * App Model class
+     * App ViewModel class
      */
-    var AppModel = function(){};
-
     var AppViewModel = function(options){
         this.title = ko.observable(options.title);
-        this.searchText = ko.observable(options.searchText);
+        //this.searchText = ko.observable(options.searchText);
+        this.currentPosition = ko.observable(); // {latitude: a, longitude: b}
         this.searchResults = ko.observableArray(options.searchResults);
-        this.isSearchBarHidden = ko.observable(options.isSearchBarHidden);
+        //this.isSearchBarHidden = ko.observable(options.isSearchBarHidden);
     };
     AppViewModel.prototype.toggleSearchBarView = function(){
         this.isSearchBarHidden(!this.isSearchBarHidden());
@@ -29,8 +21,13 @@
         if(!isAddressValid(newAddress)){
             return;
         }
-        this.searchText(newAddress);
+        var position = getPosition(newAddress)
+        this.updateCurrentPosition(position);
         this.updateMapMarkers(newAddress);
+    };
+    AppViewModel.prototype.updateCurrentPosition = function(pos){
+        globals.mapManager.setCurrentPosition(pos);
+        this.currentPosition(pos);
     };
     AppViewModel.prototype.updateSearchResults = function(){
         todoHttp
@@ -41,13 +38,23 @@
     AppViewModel.prototype.handleErrors = function(){
         
     };
-    var appViewModel = new AppViewModel({
-        title: 'Neighborhood Map',
-        searchText: ''
-    });
-
-    function appInit(){
+    
+    /**
+     * App init
+     */
+    function appInit() {
+        var appViewModel = new AppViewModel({
+            title: 'Neighborhood Map',
+            searchResults: ['a', 'b']
+        });
         ko.applyBindings(appViewModel);
+        
+        globals.mapManager = new globals.MapManager();
+
+        Utility
+        .getCurrentLocation()
+        .then(function(args){appViewModel.updateCurrentPosition(args);})
+        .catch(console.error);
     }
-    appInit();
+    globals.appInit = appInit;
 })(ko, document, window);
