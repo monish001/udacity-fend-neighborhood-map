@@ -1,6 +1,8 @@
 (function(ko, document, globals){
     'use strict';
 
+    var PATIALA_LAT_LNG = {latitude: 30.332595, longitude: 76.400283};
+
     /**
      * App ViewModel class
      */
@@ -50,11 +52,13 @@
         ko.applyBindings(appViewModel);
         
         globals.mapManager = new globals.MapManager();
-
-        Utility
-        .getCurrentLocation()
-        .then(function(args){appViewModel.updateCurrentPosition(args);})
-        .catch(console.error);
+        
+        appViewModel.updateCurrentPosition(PATIALA_LAT_LNG);
+        
+        // Utility
+        // .getCurrentLocation()
+        // .then(function(args){)
+        // .catch(console.error);
     }
     globals.appInit = appInit;
 })(ko, document, window);
