@@ -9,3 +9,10 @@ body {
 .map-section {
     height: 100%;
 }
+
+.selected-place{
+    text-decoration: underline;
+    color: blue;
+}
+
+/*css: {'selected-place': $data.id === selectedPlace.id}*/

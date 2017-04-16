@@ -21,9 +21,13 @@
         <aside class="side-bar">
             <input class="side-bar--search-input" type="text" placeholder="search listings..." data-bind="value: filterText, valueUpdate: 'afterkeydown'"/>
             <ul class="side-bar--search-results" data-bind="foreach: filteredList">
-                <li data-bind="text: $data.title, onClick">
+                <li data-bind="text: $data.title, click: $parent.onClick">
                 </li>
             </ul>
+            <div>
+                <span>Selected: </span>
+                <span data-bind="text: selectedPlaceTitle"></span>
+            </div>
         </aside>
         <header class="header">Neighborhood map</header>
         <section class="map-section">< Map section ></section>

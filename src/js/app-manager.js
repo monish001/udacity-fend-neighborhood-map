@@ -6,13 +6,13 @@
      */
     var appModel = {
         places: [
-            {title: 'Timeless Wedding Moments', lat: '12.944436', lng: '77.624534'},
-            {title: 'WeddingBellz', lat: '12.985665', lng: '77.548819'},
-            {title: 'Candid Wedding Photography by Vikash Kumar', lat: '12.867634', lng: '77.563906'},
-            {title: 'Studio AJ by Anbujawahar', lat: '13.0189818', lng: '77.6374287'},
-            {title: 'Wed Gorgeous.com', lat: '12.91791', lng: '77.59268'},
-            {title: 'Pradeep Sanyal Photography', lat: '12.9206491', lng: '77.6516286'},
-            {title: 'Arun Candid Wedding Photography', lat: '12.9538846', lng: '77.4898208'}
+            {id: 1, title: 'Timeless Wedding Moments', lat: '12.944436', lng: '77.624534'},
+            {id: 2, title: 'WeddingBellz', lat: '12.985665', lng: '77.548819'},
+            {id: 3, title: 'Candid Wedding Photography by Vikash Kumar', lat: '12.867634', lng: '77.563906'},
+            {id: 4, title: 'Studio AJ by Anbujawahar', lat: '13.0189818', lng: '77.6374287'},
+            {id: 5, title: 'Wed Gorgeous.com', lat: '12.91791', lng: '77.59268'},
+            {id: 6, title: 'Pradeep Sanyal Photography', lat: '12.9206491', lng: '77.6516286'},
+            {id: 7, title: 'Arun Candid Wedding Photography', lat: '12.9538846', lng: '77.4898208'}
         ]
     };
 
@@ -20,9 +20,10 @@
      * App viewModel
      */
     var AppViewModel = function(options){
+        // Data members
         var self = this;
         this.list = appModel.places;
-        this.selectedItem = ko.observable('');
+        this.selectedPlaceTitle = ko.observable('not selected');
         this.filterText = ko.observable('');
         this.filteredList = ko.computed(function(){
             var filteredList = [];
@@ -34,10 +35,17 @@
             });
             return filteredList;
         });
+
+        // Functions
+        this.onClick = function(place){
+            // self.selectedPlace.id = place.id;
+            // self.selectedPlace.lat = place.lat;
+            // self.selectedPlace.lng = place.lng;
+            self.selectedPlaceTitle(place.title);
+        };
+        // AppViewModel.prototype.init;
+        // AppViewModel.prototype.onSearch;
     };
-    AppViewModel.prototype.init;
-    AppViewModel.prototype.onClickItem;
-    AppViewModel.prototype.onSearch;
     globals.AppViewModel = AppViewModel;
 
     var MapManager = function(){};
