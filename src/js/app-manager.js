@@ -42,6 +42,7 @@
             // self.selectedPlace.lat = place.lat;
             // self.selectedPlace.lng = place.lng;
             self.selectedPlaceTitle(place.title);
+            //globals.mapManager.
         };
         // AppViewModel.prototype.init;
         // AppViewModel.prototype.onSearch;
@@ -63,37 +64,52 @@
         // var largeInfowindow = new google.maps.InfoWindow();
         var bounds = new google.maps.LatLngBounds();
 
-        this.map = new globals.google.maps.Map(document.getElementsByClassName('map-section')[0], {
+        self.map = new globals.google.maps.Map(document.getElementsByClassName('map-section')[0], {
             zoom: this.getZoom(),
         });
 
-        this.markers = [];
+        self.markers = self.getMarkers();
 
-        // The following group uses the location array to create an array of markers on initialize.
-        for (var i = 0, currentPlace, currentPlaceLatLng, currentPlaceTitle, currentMarker; i < appModel.places.length; i++) {
-            // Get the position
-            currentPlace = appModel.places[i];
-            currentPlaceLatLng = new google.maps.LatLng(currentPlace.lat, currentPlace.lng);
-            currentPlaceTitle = currentPlace.title;
+        google.maps.event.addListener(self.map, 'bounds_changed', function(){
+            self.renderVisibleMarkers();
+        });
 
-            // Create a marker per location, and put into markers array.
-            currentMarker = new google.maps.Marker({
-                map: self.map,
-                position: currentPlaceLatLng,
-                title: currentPlaceTitle,
-                animation: google.maps.Animation.DROP,
-                id: i
-            });
-            // Push the marker to our array of markers.
-            self.markers.push(currentMarker);
-            // Create an onclick event to open an infowindow at each marker.
-            // currentMarker.addListener('click', function() {
-            // populateInfoWindow(this, largeInfowindow);
-            // });
-            bounds.extend(self.markers[i].position);
+        self.renderAllMarkers();
+    };
+    MapManager.prototype.renderVisibleMarkers = function(){
+        var self = this;
+        var bounds = self.map.getBounds();
+
+        for(var i=0, currentMarker; i< self.markers.length; i++){
+            currentMarker = self.markers[i];
+            currentMarker.setMap(bounds.contains(currentMarker.getPosition()) ? self.map : null);
         }
-        // Extend the boundaries of the map for each marker
-        this.map.fitBounds(bounds);
+    };
+    MapManager.prototype.renderAllMarkers = function(){
+        var self = this;
+        var bounds = new google.maps.LatLngBounds();
+        for(var i=0, currentMarker; i< self.markers.length; i++){
+            currentMarker = self.markers[i];
+            currentMarker.setMap(self.map);
+            bounds.extend(currentMarker.position);
+        }
+        self.map.fitBounds(bounds);
+    };
+    MapManager.prototype.getMarkers = function(){
+        var self = this;
+        var markers = [];
+
+        for(var i=0, currentMarker, currentPlace; i< appModel.places.length; i++){
+            currentPlace = appModel.places[i];
+            currentMarker = new google.maps.Marker({
+                position: new google.maps.LatLng(currentPlace.lat, currentPlace.lng),
+                title: currentPlace.title,
+                animation: google.maps.Animation.DROP,
+                id: currentPlace.id
+            });
+            markers.push(currentMarker);
+        }
+        return markers;
     };
     MapManager.prototype.getZoom = function(){
         return this.zoom;
