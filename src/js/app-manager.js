@@ -1,6 +1,21 @@
 (function(ko, document, globals){
     'use strict';
 
+    /**
+     * Utility
+     */
+    var Utility = {
+        pickBy: function(list, key, value) {
+            var result = null;
+            list && list.forEach(function(element){
+                if(element[key] === value){
+                    result = element;
+                }
+            });
+            return result;
+        }
+    };
+
     /*
      * App model
      */
@@ -22,10 +37,10 @@
     var AppViewModel = function(options){
         // Data members
         var self = this;
-        this.list = options.places;
-        this.selectedPlaceTitle = ko.observable('not selected');
-        this.filterText = ko.observable('');
-        this.filteredList = ko.computed(function(){
+        self.list = options.places;
+        self.selectedPlaceTitle = ko.observable('not selected');
+        self.filterText = ko.observable('');
+        self.filteredList = ko.computed(function(){
             var filteredList = [];
             var filterText = self.filterText().toLowerCase();
             self.list.forEach(function(place){
@@ -37,15 +52,19 @@
         });
 
         // Functions
-        this.onClick = function(place){
-            // self.selectedPlace.id = place.id;
-            // self.selectedPlace.lat = place.lat;
-            // self.selectedPlace.lng = place.lng;
+        self.onClick = function(place){
             self.selectedPlaceTitle(place.title);
-            //globals.mapManager.
+            globals.mapManager.showInfoWindow(place.id);
         };
         // AppViewModel.prototype.init;
         // AppViewModel.prototype.onSearch;
+        self.clearPlaceSelection = function() {
+            self.selectedPlaceTitle('');
+        };
+        self.selectPlace = function(id){
+            var selectedPlace = Utility.pickBy(self.list, 'id', id);
+            self.selectedPlaceTitle(selectedPlace.title);
+        };
     };
     globals.AppViewModel = AppViewModel;
 
@@ -67,7 +86,7 @@
             zoom: this.getZoom(),
         });
 
-        self.markers = self.getMarkers();
+        self.markers = self.createMarkers();
 
         google.maps.event.addListener(self.map, 'bounds_changed', function(){
             self.renderVisibleMarkers();
@@ -94,10 +113,10 @@
         }
         self.map.fitBounds(bounds);
     };
-    MapManager.prototype.getMarkers = function(){
+    MapManager.prototype.createMarkers = function(){
         var self = this;
         var markers = [];
-        var infoWindow = new google.maps.InfoWindow();
+        self.infoWindow = new google.maps.InfoWindow();
 
         for(var i=0, currentMarker, currentPlace; i< appModel.places.length; i++){
             currentPlace = appModel.places[i];
@@ -109,7 +128,8 @@
             });
             currentMarker.addListener('click', function(marker) {
                 return function(){
-                    self.populateInfoWindow(marker, infoWindow);
+                    self.showInfoWindow(marker.id);
+                    globals.appViewModel.selectPlace(marker.id);
                 };
             }(currentMarker));
             markers.push(currentMarker);
@@ -120,8 +140,10 @@
     // This function populates the infoWindow when the marker is clicked. We'll only allow
     // one infoWindow which will open at the marker that is clicked, and populate based
     // on that markers position.
-    MapManager.prototype.populateInfoWindow = function(marker, infoWindow){
+    MapManager.prototype.showInfoWindow = function(markerId) {
         var self = this;
+        var marker = Utility.pickBy(self.markers, 'id', markerId);
+        var infoWindow = self.infoWindow;
         // Check to make sure the infoWindow is not already opened on this marker.
         if (infoWindow.marker != marker) {
             infoWindow.marker = marker;
@@ -130,10 +152,14 @@
             // Make sure the marker property is cleared if the infoWindow is closed.
             infoWindow.addListener('closeclick', function() {
                 infoWindow.marker = null;
+                globals.appViewModel.clearPlaceSelection();
             });
         }
     };
-    MapManager.prototype.getZoom = function(){
+    MapManager.prototype.selectMarker = function(id) {
+
+    };
+    MapManager.prototype.getZoom = function() {
         return this.zoom;
     };
     // MapManager.prototype.selectPlace = function(place){};
@@ -144,7 +170,7 @@
      * App init
      */
     function appInit() {
-        var appViewModel = new AppViewModel({places: appModel.places});
+        globals.appViewModel = new AppViewModel({places: appModel.places});
         ko.applyBindings(appViewModel);
 
         globals.mapManager = new globals.MapManager();
