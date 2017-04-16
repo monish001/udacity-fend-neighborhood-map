@@ -21,7 +21,7 @@
         <aside class="side-bar">
             <input class="side-bar--search-input" type="text" placeholder="search listings..." data-bind="value: filterText, valueUpdate: 'afterkeydown'"/>
             <ul class="side-bar--search-results" data-bind="foreach: filteredList">
-                <li data-bind="text: $data.title, click: $parent.onClick">
+                <li data-bind="text: $data.title, click: $parent.onClick, css: {'selected-place': $data.title === $parent.selectedPlaceTitle()}">
                 </li>
             </ul>
             <div>
