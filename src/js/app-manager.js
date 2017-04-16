@@ -17,7 +17,7 @@
     };
 
     /**
-     * App viewModel
+     * AppViewModel
      */
     var AppViewModel = function(options){
         // Data members
@@ -48,26 +48,68 @@
     };
     globals.AppViewModel = AppViewModel;
 
-    var MapManager = function(){};
-    MapManager.prototype.selectPlace = function(place){};
-    MapManager.prototype.fitBounds = function(place){};
+    /** constants */
+    var MAP_INITIAL_ZOOM = 13;
+    //var MAP_INITIAL_POSITION = {lat: 40.7413549, lng: -73.9980244};
+    /**
+     * MapManager
+     */
+    var MapManager = function(){
+        this.zoom = MAP_INITIAL_ZOOM;
+        this.initMap();
+    };
+    MapManager.prototype.initMap = function(){
+        var self = this;
+        // var largeInfowindow = new google.maps.InfoWindow();
+        var bounds = new google.maps.LatLngBounds();
+
+        this.map = new globals.google.maps.Map(document.getElementsByClassName('map-section')[0], {
+            zoom: this.getZoom(),
+        });
+
+        this.markers = [];
+
+        // The following group uses the location array to create an array of markers on initialize.
+        for (var i = 0, currentPlace, currentPlaceLatLng, currentPlaceTitle, currentMarker; i < appModel.places.length; i++) {
+            // Get the position
+            currentPlace = appModel.places[i];
+            currentPlaceLatLng = new google.maps.LatLng(currentPlace.lat, currentPlace.lng);
+            currentPlaceTitle = currentPlace.title;
+
+            // Create a marker per location, and put into markers array.
+            currentMarker = new google.maps.Marker({
+                map: self.map,
+                position: currentPlaceLatLng,
+                title: currentPlaceTitle,
+                animation: google.maps.Animation.DROP,
+                id: i
+            });
+            // Push the marker to our array of markers.
+            self.markers.push(currentMarker);
+            // Create an onclick event to open an infowindow at each marker.
+            // currentMarker.addListener('click', function() {
+            // populateInfoWindow(this, largeInfowindow);
+            // });
+            bounds.extend(self.markers[i].position);
+        }
+        // Extend the boundaries of the map for each marker
+        this.map.fitBounds(bounds);
+    };
+    MapManager.prototype.getZoom = function(){
+        return this.zoom;
+    };
+    // MapManager.prototype.selectPlace = function(place){};
+    // MapManager.prototype.fitBounds = function(place){};
     globals.MapManager = MapManager;
-    
+
     /**
      * App init
      */
     function appInit() {
         var appViewModel = new AppViewModel({places: appModel.places});
         ko.applyBindings(appViewModel);
-        
+
         globals.mapManager = new globals.MapManager();
-        
-        //appViewModel.updateCurrentPosition(PATIALA_LAT_LNG);
-        
-        // Utility
-        // .getCurrentLocation()
-        // .then(function(args){)
-        // .catch(console.error);
     }
     globals.appInit = appInit;
 })(ko, document, window);
