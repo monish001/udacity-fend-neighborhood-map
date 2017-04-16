@@ -1,45 +1,49 @@
 (function(ko, document, globals){
     'use strict';
 
-    var PATIALA_LAT_LNG = {latitude: 30.332595, longitude: 76.400283};
+    /*
+     * App model
+     */
+    var appModel = {
+        places: [
+            {title: 'Timeless Wedding Moments', lat: '12.944436', lng: '77.624534'},
+            {title: 'WeddingBellz', lat: '12.985665', lng: '77.548819'},
+            {title: 'Candid Wedding Photography by Vikash Kumar', lat: '12.867634', lng: '77.563906'},
+            {title: 'Studio AJ by Anbujawahar', lat: '13.0189818', lng: '77.6374287'},
+            {title: 'Wed Gorgeous.com', lat: '12.91791', lng: '77.59268'},
+            {title: 'Pradeep Sanyal Photography', lat: '12.9206491', lng: '77.6516286'},
+            {title: 'Arun Candid Wedding Photography', lat: '12.9538846', lng: '77.4898208'}
+        ]
+    };
 
     /**
-     * App ViewModel class
+     * App viewModel
      */
     var AppViewModel = function(options){
-        this.title = ko.observable(options.title);
-        //this.searchText = ko.observable(options.searchText);
-        this.currentPosition = ko.observable(); // {latitude: a, longitude: b}
-        this.searchResults = ko.observableArray(options.searchResults);
-        //this.isSearchBarHidden = ko.observable(options.isSearchBarHidden);
+        var self = this;
+        this.list = appModel.places;
+        this.selectedItem = ko.observable('');
+        this.filterText = ko.observable('');
+        this.filteredList = ko.computed(function(){
+            var filteredList = [];
+            var filterText = self.filterText().toLowerCase();
+            self.list.forEach(function(place){
+                if(place.title.toLowerCase().indexOf(filterText) != -1){ // if contains
+                    filteredList.push(place);
+                }
+            });
+            return filteredList;
+        });
     };
-    AppViewModel.prototype.toggleSearchBarView = function(){
-        this.isSearchBarHidden(!this.isSearchBarHidden());
-    };
-    /**
-     * reads the address from input text and delegates to update the map markers/items
-     */
-    AppViewModel.prototype.onSearchTextChange = function(newAddress){
-        if(!isAddressValid(newAddress)){
-            return;
-        }
-        var position = getPosition(newAddress)
-        this.updateCurrentPosition(position);
-        this.updateMapMarkers(newAddress);
-    };
-    AppViewModel.prototype.updateCurrentPosition = function(pos){
-        globals.mapManager.setCurrentPosition(pos);
-        this.currentPosition(pos);
-    };
-    AppViewModel.prototype.updateSearchResults = function(){
-        todoHttp
-        .get(url)
-        .then(function(){})
-        .catch(this.handleErrors);
-    };
-    AppViewModel.prototype.handleErrors = function(){
-        
-    };
+    AppViewModel.prototype.init;
+    AppViewModel.prototype.onClickItem;
+    AppViewModel.prototype.onSearch;
+    globals.AppViewModel = AppViewModel;
+
+    var MapManager = function(){};
+    MapManager.prototype.selectPlace = function(place){};
+    MapManager.prototype.fitBounds = function(place){};
+    globals.MapManager = MapManager;
     
     /**
      * App init
@@ -51,9 +55,9 @@
         });
         ko.applyBindings(appViewModel);
         
-        globals.mapManager = new globals.MapManager();
+        //globals.mapManager = new globals.MapManager();
         
-        appViewModel.updateCurrentPosition(PATIALA_LAT_LNG);
+        //appViewModel.updateCurrentPosition(PATIALA_LAT_LNG);
         
         // Utility
         // .getCurrentLocation()

@@ -19,9 +19,10 @@
 
         <!-- Application content here -->
         <aside class="side-bar">
-            <input class="side-bar--search-input" type="text" placeholder="search listings..."/>
-            <ul class="side-bar--search-results" data-bind="foreach: searchResults">
-                <li data-bind="text: $data"><span data-bind=""></span></li>
+            <input class="side-bar--search-input" type="text" placeholder="search listings..." data-bind="value: filterText, valueUpdate: 'afterkeydown'"/>
+            <ul class="side-bar--search-results" data-bind="foreach: filteredList">
+                <li data-bind="text: $data.title, onClick">
+                </li>
             </ul>
         </aside>
         <header class="header">Neighborhood map</header>
@@ -30,9 +31,7 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script>window.ko || document.write('<script src="../node_modules/knockout/build/output/knockout-latest.debug.js"><\/script>')</script>
-        <script src="./js/utility.js"></script>
         <script src="./js/app-manager.js"></script>
-        <script src="./js/map-manager.js"></script>
         <script async defer
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVEZN7SLkts6zdk2qiSzmforFdiU6JVK0&v=3&callback=appInit&libraries=places">
         </script>
