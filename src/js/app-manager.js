@@ -22,7 +22,7 @@
     var AppViewModel = function(options){
         // Data members
         var self = this;
-        this.list = appModel.places;
+        this.list = options.places;
         this.selectedPlaceTitle = ko.observable('not selected');
         this.filterText = ko.observable('');
         this.filteredList = ko.computed(function(){
@@ -57,13 +57,10 @@
      * App init
      */
     function appInit() {
-        var appViewModel = new AppViewModel({
-            title: 'Neighborhood Map',
-            searchResults: ['a', 'b']
-        });
+        var appViewModel = new AppViewModel({places: appModel.places});
         ko.applyBindings(appViewModel);
         
-        //globals.mapManager = new globals.MapManager();
+        globals.mapManager = new globals.MapManager();
         
         //appViewModel.updateCurrentPosition(PATIALA_LAT_LNG);
         
