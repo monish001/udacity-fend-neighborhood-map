@@ -15,6 +15,9 @@ Neighborhood maps project as per udacity fend nanodegree requirements.
 
 ### Features
 ##### Version 0.1.0
-- @todo
-##### Version 0.2.0
-- @todo
+- Initial list of famous forts from India is shown in the list and in the map.
+- List can be filtered by text. Locations in the map are updated accordingly.
+- Foursquare API is used to fetch address of the forts.
+- The web-app renders gracefully in mobile as well as bigger screen. Filter and list can be viewed in mobile device by tapping on the ham-burger icon on right-top.
+- Clicking on item from list or marker in map shows name of the fort and address fetched from foursquare API.
+- Bounce animation added to the marker when marker is clicked or an item is selected from the list.
