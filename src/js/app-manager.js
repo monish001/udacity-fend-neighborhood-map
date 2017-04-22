@@ -40,9 +40,10 @@
         self.list = options.places;
         self.selectedPlaceTitle = ko.observable('not selected');
         self.filterText = ko.observable('');
+        // self.filteredPlaceIdsFromMap = ko.observable([]);
         self.filteredList = ko.computed(function(){
             var filteredList = [];
-            var filterText = self.filterText().toLowerCase();
+            var filterText = self.filterText() && self.filterText().toLowerCase();
             self.list.forEach(function(place){
                 if(place.title.toLowerCase().indexOf(filterText) != -1){ // if contains
                     filteredList.push(place);
@@ -50,9 +51,15 @@
             });
             return filteredList;
         });
+        // Calls on map bounds change.
+        // To update places to those visible in map
+        // self.updateList = function(placeIds){ 
+        //     self.filterText(null);
+        //     self.filteredPlaceIdsFromMap(placeIds);
+        // };
 
         // Functions
-        self.onClick = function(place){
+        self.onListItemClick = function(place){
             self.selectedPlaceTitle(place.title);
             globals.mapManager.showInfoWindow(place.id);
         };
@@ -89,7 +96,8 @@
         self.markers = self.createMarkers();
 
         google.maps.event.addListener(self.map, 'bounds_changed', function(){
-            self.renderVisibleMarkers();
+            var visibleMarkerIds = self.renderVisibleMarkers();
+            // globals.appViewModel.updateList(visibleMarkerIds);
         });
 
         self.renderAllMarkers();
@@ -97,11 +105,18 @@
     MapManager.prototype.renderVisibleMarkers = function(){
         var self = this;
         var bounds = self.map.getBounds();
+        var visibleMarkerIds = [];
 
         for(var i=0, currentMarker; i< self.markers.length; i++){
             currentMarker = self.markers[i];
-            currentMarker.setMap(bounds.contains(currentMarker.getPosition()) ? self.map : null);
+            if(bounds.contains(currentMarker.getPosition())){
+                currentMarker.setMap(self.map);
+                visibleMarkerIds.push(currentMarker.id);
+            }else{
+                currentMarker.setMap(null);
+            }
         }
+        return visibleMarkerIds;
     };
     MapManager.prototype.renderAllMarkers = function(){
         var self = this;
