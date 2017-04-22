@@ -262,6 +262,7 @@
             infoWindow.open(self.map, marker);
             // Make sure the marker property is cleared if the infoWindow is closed.
             infoWindow.addListener('closeclick', function() {
+                infoWindow.marker && infoWindow.marker.setAnimation(null);
                 infoWindow.marker = null;
                 globals.appViewModel.clearPlaceSelection();
             });
