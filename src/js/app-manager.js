@@ -5,7 +5,7 @@
      * CONSTANTS
      */
     var CONSTANTS = {
-        FOUR_SQUARE_CLIENT_ID: 'G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
+        FOUR_SQUARE_CLIENT_ID: '1G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
         FOUR_SQUARE_CLIENT_SECRET: 'AOPW13P5JSEVL0CSRCQWU2VCLG10P2UDXPN053XK10RN1PER',
         MAP_INITIAL_ZOOM: 10,
         MAP_INITIAL_POSITION: {lat: 12.91791, lng: 77.624534}
@@ -185,20 +185,17 @@
             '&client_id=' + CONSTANTS.FOUR_SQUARE_CLIENT_ID + 
             '&client_secret=' + CONSTANTS.FOUR_SQUARE_CLIENT_SECRET + 
             '&v=20161016' + 
-            // '&intent=checkin' +
             '&query=' + encodeURIComponent(currentPlace.title);
 
-        $.getJSON(fourSquareUrl)
-            .done(function(data){self.fourSquareDone(data, currentPlace);})
-            .fail(self.fourSquareFail);
+        return $.getJSON(fourSquareUrl)
+            .always(function(data){self.fourSquareAlways(data, currentPlace);});
     };
-    MapManager.prototype.fourSquareDone = function(fourSquareData, currentPlace){
+    MapManager.prototype.fourSquareAlways = function(fourSquareData, currentPlace){
         var self = this;
-        var venue = fourSquareData.response.venues[0];
+        var venue = fourSquareData.response ? fourSquareData.response.venues[0] : null;
 		var street = venue ? venue.location.formattedAddress[0] : '';
      	var city = venue ? venue.location.formattedAddress[1] : '';
-        var markerTitle = `
-            <div class="info-window-content">
+        var markerTitle = `<div class="info-window-content">
                 <div class="title"><b>${currentPlace.title}</b></div>
                 <div class="content">${street}</div>
                 <div class="content">${city}</div>
@@ -223,10 +220,17 @@
     }
     MapManager.prototype.createMarkers = function(){
         var self = this;
-
+        var fourSquareApiPromises = [];
         appModel.places.forEach(function(currentPlace){
-            self.createMarker(currentPlace);
-        });        
+            var apiCallPromise = self.createMarker(currentPlace);
+            fourSquareApiPromises.push(apiCallPromise);
+        });
+        $.when.apply($, fourSquareApiPromises).then(function() {
+            // all foursquare api calls succeeded.
+        }, function(e) {
+            console.log(e);
+            self.fourSquareFail();
+        });
     };
     MapManager.prototype.selectPlace = function(markerId) {
         var self = this;
