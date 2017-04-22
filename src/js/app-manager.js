@@ -5,12 +5,24 @@
      * Utility
      */
     var Utility = {
-        pickBy: function(list, key, value) {
+        // returns last item in list having key, value pair 
+        // returns null if not found
+        pickLastBy: function(list, key, value) {
             var result = null;
             list && list.forEach(function(element){
                 if(element[key] === value){
                     result = element;
                 }
+            });
+            return result;
+        },
+
+        // returns array with values of list[i].key
+        // returns empty array if list is null/undefined or empty.
+        pick: function(list, key){
+            var result = [];
+            list && list.forEach(function(element){
+                result.push(element[key]);
             });
             return result;
         }
@@ -40,7 +52,10 @@
         self.list = options.places;
         self.selectedPlaceTitle = ko.observable('not selected');
         self.filterText = ko.observable('');
-        // self.filteredPlaceIdsFromMap = ko.observable([]);
+        self.filterText.subscribe(function(newText){
+            self.clearPlaceSelection();
+            globals.mapManager.clearPlaceSelection();
+        });
         self.filteredList = ko.computed(function(){
             var filteredList = [];
             var filterText = self.filterText() && self.filterText().toLowerCase();
@@ -51,6 +66,13 @@
             });
             return filteredList;
         });
+        self.filteredList.subscribe(function(newList){
+            self.onFilteredListChange(newList);
+        });
+        self.onFilteredListChange = function(filteredPlaces){
+            var filteredPlaceIds = Utility.pick(filteredPlaces, 'id');
+            globals.mapManager.renderMarkers(filteredPlaceIds);
+        }
         // Calls on map bounds change.
         // To update places to those visible in map
         // self.updateList = function(placeIds){ 
@@ -61,15 +83,15 @@
         // Functions
         self.onListItemClick = function(place){
             self.selectedPlaceTitle(place.title);
-            globals.mapManager.showInfoWindow(place.id);
+            globals.mapManager.selectPlace(place.id);
         };
         // AppViewModel.prototype.init;
         // AppViewModel.prototype.onSearch;
         self.clearPlaceSelection = function() {
-            self.selectedPlaceTitle('');
+            self.selectedPlaceTitle('not selected');
         };
-        self.selectPlace = function(id){
-            var selectedPlace = Utility.pickBy(self.list, 'id', id);
+        self.selectPlace = function(placeId){
+            var selectedPlace = Utility.pickLastBy(self.list, 'id', placeId);
             self.selectedPlaceTitle(selectedPlace.title);
         };
     };
@@ -93,7 +115,7 @@
             zoom: this.getZoom(),
         });
 
-        self.markers = self.createMarkers();
+        self.markersMap = self.createMarkers();
 
         google.maps.event.addListener(self.map, 'bounds_changed', function(){
             var visibleMarkerIds = self.renderVisibleMarkers();
@@ -107,30 +129,49 @@
         var bounds = self.map.getBounds();
         var visibleMarkerIds = [];
 
-        for(var i=0, currentMarker; i< self.markers.length; i++){
-            currentMarker = self.markers[i];
+        for(var currentMarkerId in self.markersMap){
+            var currentMarker = self.markersMap[currentMarkerId];
             if(bounds.contains(currentMarker.getPosition())){
                 currentMarker.setMap(self.map);
                 visibleMarkerIds.push(currentMarker.id);
             }else{
                 currentMarker.setMap(null);
             }
-        }
+        };
         return visibleMarkerIds;
     };
     MapManager.prototype.renderAllMarkers = function(){
         var self = this;
         var bounds = new google.maps.LatLngBounds();
-        for(var i=0, currentMarker; i< self.markers.length; i++){
-            currentMarker = self.markers[i];
+        for(var currentMarkerId in self.markersMap){
+            var currentMarker = self.markersMap[currentMarkerId];
             currentMarker.setMap(self.map);
             bounds.extend(currentMarker.position);
-        }
+        };
+        self.map.fitBounds(bounds);
+    };
+    MapManager.prototype.clearMarkersFromMap = function(){
+        var self = this;
+        for(var currentMarkerId in self.markersMap){
+            var currentMarker = self.markersMap[currentMarkerId];
+            currentMarker.setMap(null); // todo, bug: marker id 6 is not getting clear from map
+        };
+    };
+    // Renders markers with id in markerIds[] else renders all
+    MapManager.prototype.renderMarkers = function(markerIds){
+        var self = this;
+        var bounds = new google.maps.LatLngBounds();
+        self.clearMarkersFromMap();
+        markerIds.forEach(function(markerId){ // value, key
+            var currentMarker = self.markersMap[markerId];
+            currentMarker.setMap(self.map);
+            bounds.extend(currentMarker.position);
+        });
         self.map.fitBounds(bounds);
     };
     MapManager.prototype.createMarkers = function(){
         var self = this;
-        var markers = [];
+        var markersMap = {};
         self.infoWindow = new google.maps.InfoWindow();
 
         for(var i=0, currentMarker, currentPlace; i< appModel.places.length; i++){
@@ -143,13 +184,28 @@
             });
             currentMarker.addListener('click', function(marker) {
                 return function(){
-                    self.showInfoWindow(marker.id);
+                    self.selectPlace(marker.id);
                     globals.appViewModel.selectPlace(marker.id);
+                    // self.toggleBounce(marker);
                 };
             }(currentMarker));
-            markers.push(currentMarker);
+            markersMap[currentMarker.id] = currentMarker;
         }
-        return markers;
+        return markersMap;
+    };
+    MapManager.prototype.selectPlace = function(markerId) {
+        var self = this;
+        var marker = self.markersMap[markerId];
+        self.showInfoWindow(marker.id);
+        self.clearMarkersAnimation();
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+    MapManager.prototype.clearMarkersAnimation = function() {
+        var self = this;
+        for(var currentMarkerId in self.markersMap){
+            var currentMarker = self.markersMap[currentMarkerId];
+            currentMarker.setAnimation(null);
+        };
     };
 
     // This function populates the infoWindow when the marker is clicked. We'll only allow
@@ -157,7 +213,7 @@
     // on that markers position.
     MapManager.prototype.showInfoWindow = function(markerId) {
         var self = this;
-        var marker = Utility.pickBy(self.markers, 'id', markerId);
+        var marker = self.markersMap[markerId];
         var infoWindow = self.infoWindow;
         // Check to make sure the infoWindow is not already opened on this marker.
         if (infoWindow.marker != marker) {
@@ -171,8 +227,10 @@
             });
         }
     };
-    MapManager.prototype.selectMarker = function(id) {
-
+    MapManager.prototype.clearPlaceSelection = function(){
+        var self = this;
+        self.infoWindow.marker = null;
+        self.infoWindow.close();
     };
     MapManager.prototype.getZoom = function() {
         return this.zoom;
