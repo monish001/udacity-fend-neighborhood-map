@@ -2,6 +2,16 @@
     'use strict';
 
     /**
+     * CONSTANTS
+     */
+    var CONSTANTS = {
+        FOUR_SQUARE_CLIENT_ID: 'G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
+        FOUR_SQUARE_CLIENT_SECRET: 'AOPW13P5JSEVL0CSRCQWU2VCLG10P2UDXPN053XK10RN1PER',
+        MAP_INITIAL_ZOOM: 13,
+        MAP_INITIAL_POSITION: {lat: 40.7413549, lng: -73.9980244}
+    };
+
+    /**
      * Utility
      */
     var Utility = {
@@ -97,14 +107,10 @@
     };
     globals.AppViewModel = AppViewModel;
 
-    /** constants */
-    var MAP_INITIAL_ZOOM = 13;
-    //var MAP_INITIAL_POSITION = {lat: 40.7413549, lng: -73.9980244};
     /**
      * MapManager
      */
     var MapManager = function(){
-        this.zoom = MAP_INITIAL_ZOOM;
         this.initMap();
     };
     MapManager.prototype.initMap = function(){
@@ -112,17 +118,20 @@
         var bounds = new google.maps.LatLngBounds();
 
         self.map = new globals.google.maps.Map(document.getElementsByClassName('map-section')[0], {
-            zoom: this.getZoom(),
+            zoom: CONSTANTS.MAP_INITIAL_ZOOM,
+            center: CONSTANTS.MAP_INITIAL_POSITION
         });
 
-        self.markersMap = self.createMarkers();
+        self.infoWindow = new google.maps.InfoWindow();
+        self.markersMap = {};
+        self.createMarkers();
 
         google.maps.event.addListener(self.map, 'bounds_changed', function(){
             var visibleMarkerIds = self.renderVisibleMarkers();
             // globals.appViewModel.updateList(visibleMarkerIds);
         });
 
-        self.renderAllMarkers();
+        //self.renderAllMarkers();
     };
     MapManager.prototype.renderVisibleMarkers = function(){
         var self = this;
@@ -140,16 +149,16 @@
         };
         return visibleMarkerIds;
     };
-    MapManager.prototype.renderAllMarkers = function(){
-        var self = this;
-        var bounds = new google.maps.LatLngBounds();
-        for(var currentMarkerId in self.markersMap){
-            var currentMarker = self.markersMap[currentMarkerId];
-            currentMarker.setMap(self.map);
-            bounds.extend(currentMarker.position);
-        };
-        self.map.fitBounds(bounds);
-    };
+    // MapManager.prototype.renderAllMarkers = function(){
+    //     var self = this;
+    //     var bounds = new google.maps.LatLngBounds();
+    //     for(var currentMarkerId in self.markersMap){
+    //         var currentMarker = self.markersMap[currentMarkerId];
+    //         currentMarker.setMap(self.map);
+    //         bounds.extend(currentMarker.position);
+    //     };
+    //     self.map.fitBounds(bounds);
+    // };
     MapManager.prototype.clearMarkersFromMap = function(){
         var self = this;
         for(var currentMarkerId in self.markersMap){
@@ -169,29 +178,55 @@
         });
         self.map.fitBounds(bounds);
     };
+    MapManager.prototype.createMarker = function(currentPlace){
+        var self = this;
+        var fourSquareUrl = 'https://api.foursquare.com/v2/venues/search?' +
+            'll=' + currentPlace.lat + ',' + currentPlace.lng + 
+            '&client_id=' + CONSTANTS.FOUR_SQUARE_CLIENT_ID + 
+            '&client_secret=' + CONSTANTS.FOUR_SQUARE_CLIENT_SECRET + 
+            '&v=20161016' + 
+            // '&intent=checkin' +
+            '&query=' + encodeURIComponent(currentPlace.title);
+
+        $.getJSON(fourSquareUrl)
+            .done(function(data){self.fourSquareDone(data, currentPlace);})
+            .fail(self.fourSquareFail);
+    };
+    MapManager.prototype.fourSquareDone = function(fourSquareData, currentPlace){
+        var self = this;
+        var venue = fourSquareData.response.venues[0];
+		var street = venue ? venue.location.formattedAddress[0] : '';
+     	var city = venue ? venue.location.formattedAddress[1] : '';
+        var markerTitle = `
+            <div class="info-window-content">
+                <div class="title"><b>${currentPlace.title}</b></div>
+                <div class="content">${street}</div>
+                <div class="content">${city}</div>
+            </div>`;
+        var currentMarker = new google.maps.Marker({
+            position: new google.maps.LatLng(currentPlace.lat, currentPlace.lng),
+            title: markerTitle,
+            animation: google.maps.Animation.DROP,
+            id: currentPlace.id,
+            map: self.map
+        });
+        currentMarker.addListener('click', function(marker) {
+            return function(){
+                self.selectPlace(marker.id);
+                globals.appViewModel.selectPlace(marker.id);
+            };
+        }(currentMarker));
+        self.markersMap[currentMarker.id] = currentMarker;
+    };
+    MapManager.prototype.fourSquareFail = function(){
+        alert('There was an error loading FourSquare API call. Please refresh the page to correct the problem or try after sometime.');
+    }
     MapManager.prototype.createMarkers = function(){
         var self = this;
-        var markersMap = {};
-        self.infoWindow = new google.maps.InfoWindow();
 
-        for(var i=0, currentMarker, currentPlace; i< appModel.places.length; i++){
-            currentPlace = appModel.places[i];
-            currentMarker = new google.maps.Marker({
-                position: new google.maps.LatLng(currentPlace.lat, currentPlace.lng),
-                title: currentPlace.title,
-                animation: google.maps.Animation.DROP,
-                id: currentPlace.id
-            });
-            currentMarker.addListener('click', function(marker) {
-                return function(){
-                    self.selectPlace(marker.id);
-                    globals.appViewModel.selectPlace(marker.id);
-                    // self.toggleBounce(marker);
-                };
-            }(currentMarker));
-            markersMap[currentMarker.id] = currentMarker;
-        }
-        return markersMap;
+        appModel.places.forEach(function(currentPlace){
+            self.createMarker(currentPlace);
+        });        
     };
     MapManager.prototype.selectPlace = function(markerId) {
         var self = this;
@@ -231,9 +266,6 @@
         var self = this;
         self.infoWindow.marker = null;
         self.infoWindow.close();
-    };
-    MapManager.prototype.getZoom = function() {
-        return this.zoom;
     };
     // MapManager.prototype.selectPlace = function(place){};
     // MapManager.prototype.fitBounds = function(place){};
