@@ -7,8 +7,8 @@
     var CONSTANTS = {
         FOUR_SQUARE_CLIENT_ID: 'G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
         FOUR_SQUARE_CLIENT_SECRET: 'AOPW13P5JSEVL0CSRCQWU2VCLG10P2UDXPN053XK10RN1PER',
-        MAP_INITIAL_ZOOM: 10,
-        MAP_INITIAL_POSITION: {lat: 12.91791, lng: 77.624534}
+        MAP_INITIAL_ZOOM: 5,
+        MAP_INITIAL_POSITION: {lat: 26.9859, lng: 75.8507}
     };
 
     /**
@@ -43,13 +43,12 @@
      */
     var appModel = {
         places: [
-            {id: 1, title: 'Timeless Wedding Moments', lat: '12.944436', lng: '77.624534'},
-            {id: 2, title: 'WeddingBellz', lat: '12.985665', lng: '77.548819'},
-            {id: 3, title: 'Candid Wedding Photography by Vikash Kumar', lat: '12.867634', lng: '77.563906'},
-            {id: 4, title: 'Studio AJ by Anbujawahar', lat: '13.0189818', lng: '77.6374287'},
-            {id: 5, title: 'Wed Gorgeous.com', lat: '12.91791', lng: '77.59268'},
-            {id: 6, title: 'Pradeep Sanyal Photography', lat: '12.9206491', lng: '77.6516286'},
-            {id: 7, title: 'Arun Candid Wedding Photography', lat: '12.9538846', lng: '77.4898208'}
+            {id: 8, title: 'Gwalior Fort', lat: '26.2303', lng: '78.1689'},
+            {id: 9, title: 'Mehrangarh Fort', lat: '26.29784', lng: '73.01842'},
+            {id: 10, title: 'Red Fort', lat: '28.6562', lng: '77.2410'},
+            {id: 11, title: 'Chittorgarh Fort', lat: '24.8863', lng: '74.647'},
+            {id: 13, title: 'Jaisalmer Fort', lat: '26.9127', lng: '70.9126'},
+            {id: 14, title: 'Amer Fort', lat: '26.9859', lng: '75.8507'}
         ]
     };
 

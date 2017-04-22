@@ -5,13 +5,64 @@ body {
     margin: 0;
     padding: 0;
 }
-
-.map-section {
-    height: 50%;
+.nav {
+    background-color: white;
+    position: fixed;
+    width: 300px;
+    transform: translate(-300px, 0);
+    transition: transform 0.3s linear;
+    height: 100%;
+    z-index: 100;
 }
-
+.nav.open {
+    transform: translate(0, 0);
+}
+.map-section {
+    height: 100%;
+    z-index: 0;
+}
+.header__menu {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    padding: 1em;
+    z-index: 100;
+}
+.header__menu svg {
+    width: 32px;
+    fill: darkslategray;
+}
 .selected-place{
     text-decoration: underline;
     color: blue;
 }
-
+.nav--search-input {
+    margin: 1rem 0 0 1rem;
+    width: 15.5rem;
+    height: 1rem;
+    padding: .5rem;    
+}
+.nav--search-results li{
+    cursor: pointer;
+}
+.nav--header {
+    text-align: center;
+    margin: 1rem 0 0;    
+}
+.nav--header span {
+    font-weight: bold;
+    border-bottom: 1px black solid;
+    padding: 0 0 2px;
+}
+@media screen and (min-width: 700px) {
+    .nav {
+        transform: translate(0, 0);
+    }
+    .header__menu svg{
+        display: none;
+    }
+    .map-section{
+        left: 300px;
+        width: calc(100% - 300px);        
+    }
+}

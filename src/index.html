@@ -18,16 +18,39 @@
         <![endif]-->
 
         <!-- Application content here -->
-        <aside class="side-bar">
-            <input class="side-bar--search-input" type="text" placeholder="search listings..." data-bind="value: filterText, valueUpdate: 'afterkeydown'"/>
-            <ul class="side-bar--search-results" data-bind="foreach: filteredList">
+        <header>
+            <a class="header__menu">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M2 6h20v3H2zm0 5h20v3H2zm0 5h20v3H2z"/>
+                </svg>
+            </a>
+        </header>
+        <aside class="nav">
+            <header class="nav--header"><span>Famous forts in India</span></header>
+            <input class="nav--search-input" type="text" placeholder="search listings..." data-bind="value: filterText, valueUpdate: 'afterkeydown'"/>
+            <ul class="nav--search-results" data-bind="foreach: filteredList">
                 <li data-bind="text: $data.title, click: $parent.onListItemClick, css: {'selected-place': $data.title === $parent.selectedPlaceTitle()}">
                 </li>
             </ul>
         </aside>
-        <header class="header">Neighborhood map</header>
         <section class="map-section"></section>
-        <footer>copyright</footer>
+
+        <script>
+        /*
+        * Open the drawer when the menu icon is clicked.
+        */
+        var menu = document.querySelector('.header__menu');
+        var main = document.querySelector('.map-section');
+        var drawer = document.querySelector('.nav');
+
+        menu.addEventListener('click', function(e) {
+            drawer.classList.toggle('open');
+            e.stopPropagation();
+        });
+        main.addEventListener('click', function() {
+            drawer.classList.remove('open');
+        });
+        </script>
 
         <script async defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
         <script>window.ko || document.write('<script src="../node_modules/jquery/dist/jquery.min.js"><\/script>')</script>
