@@ -5,7 +5,7 @@
      * CONSTANTS
      */
     var CONSTANTS = {
-        FOUR_SQUARE_CLIENT_ID: '1G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
+        FOUR_SQUARE_CLIENT_ID: 'G55PGTIJ0BIO14PWTSYKWXRCF2MM3B0YOUZDMWU5EG0DKEDM',
         FOUR_SQUARE_CLIENT_SECRET: 'AOPW13P5JSEVL0CSRCQWU2VCLG10P2UDXPN053XK10RN1PER',
         MAP_INITIAL_ZOOM: 10,
         MAP_INITIAL_POSITION: {lat: 12.91791, lng: 77.624534}
@@ -124,29 +124,29 @@
 
         self.infoWindow = new google.maps.InfoWindow();
         self.markersMap = {};
-        self.createMarkers();
+        var createMarkerPromises = self.createMarkers();
 
-        google.maps.event.addListener(self.map, 'bounds_changed', function(){
-            var visibleMarkerIds = self.renderVisibleMarkers();
-            // globals.appViewModel.updateList(visibleMarkerIds);
+        $.when.apply($, createMarkerPromises).then(function() {
+            google.maps.event.addListener(self.map, 'bounds_changed', function(){
+                var visibleMarkerIds = self.renderVisibleMarkers();
+            });
         });
-
-        //self.renderAllMarkers();
     };
     MapManager.prototype.renderVisibleMarkers = function(){
         var self = this;
         var bounds = self.map.getBounds();
         var visibleMarkerIds = [];
+        var filteredPlacesFromList = globals.appViewModel.filteredList();
 
-        for(var currentMarkerId in self.markersMap){
-            var currentMarker = self.markersMap[currentMarkerId];
+        filteredPlacesFromList.forEach(function(place){
+            var currentMarker = self.markersMap[place.id];
             if(bounds.contains(currentMarker.getPosition())){
                 currentMarker.setMap(self.map);
                 visibleMarkerIds.push(currentMarker.id);
             }else{
                 currentMarker.setMap(null);
             }
-        };
+        });
         return visibleMarkerIds;
     };
     // MapManager.prototype.renderAllMarkers = function(){
@@ -231,6 +231,7 @@
             console.log(e);
             self.fourSquareFail();
         });
+        return fourSquareApiPromises;
     };
     MapManager.prototype.selectPlace = function(markerId) {
         var self = this;
