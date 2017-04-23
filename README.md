@@ -2,9 +2,13 @@
 Neighborhood maps project as per udacity fend nanodegree requirements.
 
 ### Index
+- Running locally
 - Demo
 - Deployment
 - Features
+
+### Running locally
+- Open `/src/index.html` in chrome web-browser.
 
 ### Demo
 - Latest version can be run at [http://mg-neighborhood-map.surge.sh](http://mg-neighborhood-map.surge.sh)

@@ -140,29 +140,19 @@
         filteredPlacesFromList.forEach(function(place){
             var currentMarker = self.markersMap[place.id];
             if(bounds.contains(currentMarker.getPosition())){
-                currentMarker.setMap(self.map);
+                currentMarker.setVisible(true);
                 visibleMarkerIds.push(currentMarker.id);
             }else{
-                currentMarker.setMap(null);
+                currentMarker.setVisible(false);
             }
         });
         return visibleMarkerIds;
     };
-    // MapManager.prototype.renderAllMarkers = function(){
-    //     var self = this;
-    //     var bounds = new google.maps.LatLngBounds();
-    //     for(var currentMarkerId in self.markersMap){
-    //         var currentMarker = self.markersMap[currentMarkerId];
-    //         currentMarker.setMap(self.map);
-    //         bounds.extend(currentMarker.position);
-    //     };
-    //     self.map.fitBounds(bounds);
-    // };
     MapManager.prototype.clearMarkersFromMap = function(){
         var self = this;
         for(var currentMarkerId in self.markersMap){
             var currentMarker = self.markersMap[currentMarkerId];
-            currentMarker.setMap(null); // todo, bug: marker id 6 is not getting clear from map
+            currentMarker.setVisible(false);
         };
     };
     // Renders markers with id in markerIds[] else renders all
@@ -172,7 +162,7 @@
         self.clearMarkersFromMap();
         markerIds.forEach(function(markerId){ // value, key
             var currentMarker = self.markersMap[markerId];
-            currentMarker.setMap(self.map);
+            currentMarker.setVisible(true);
             bounds.extend(currentMarker.position);
         });
         self.map.fitBounds(bounds);
@@ -286,4 +276,9 @@
         globals.mapManager = new globals.MapManager();
     }
     globals.appInit = appInit;
+
+    function googleInitError(){
+        alert('There is a problem with google maps. Please refresh the page to load again.');
+    }
+    globals.googleInitError = googleInitError;
 })(ko, document, window);
