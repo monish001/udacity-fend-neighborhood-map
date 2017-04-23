@@ -25,3 +25,8 @@ Neighborhood maps project as per udacity fend nanodegree requirements.
 - The web-app renders gracefully in mobile as well as bigger screen. Filter and list can be viewed in mobile device by tapping on the ham-burger icon on right-top.
 - Clicking on item from list or marker in map shows name of the fort and address fetched from foursquare API.
 - Bounce animation added to the marker when marker is clicked or an item is selected from the list.
+
+##### Changes as per review comments
+- Error handling done if google maps script fails to load.
+- Steps to run the app locally added in readme.
+- marker.setMap replaced with marker.setVisible for optimization.
